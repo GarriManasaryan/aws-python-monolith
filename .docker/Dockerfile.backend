@@ -1,0 +1,21 @@
+FROM python:3.10
+
+# контейнер дожтдался доступности постгреса
+ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.9.0/wait /usr/local/bin/wait
+
+RUN chmod +x /usr/local/bin/wait
+
+# почему раздельно - ибо если все копировать и устанавливать, то докер воспринимает, что код поменялся и снова ставит пакеты
+# поэтому раздельно ставим и потом все копиируем
+COPY backend/requirements.txt requirements.txt
+
+RUN pip install -r requirements.txt
+
+COPY backend /backend
+
+RUN rm -f /backend/src/main/.env || true
+
+WORKDIR /backend/src/main
+
+# CMD ["uvicorn", "web_app:create_app", "--host", "0.0.0.0", "--port", "5000"]
+CMD ["sh", "-c", "uvicorn web_app:app --host $FASTAPI_HOST --port $FASTAPI_PORT"]
