@@ -236,68 +236,32 @@ Resources:
 
 Outputs:
 
-  VPCId:
-    Description: VPC ID
-    Value: !Ref VPC
-    Export:
-      Name: my-network-vpc-id
-
-  PublicSubnet1Id:
-    Description: First public subnet
-    Value: !Ref PublicSubnet1
-    Export:
-      Name: my-network-public-subnet-1-id
-
-  PublicSubnet2Id:
-    Description: Second public subnet
-    Value: !Ref PublicSubnet2
-    Export:
-      Name: my-network-public-subnet-2-id
-
   PrivateSubnet1Id:
     Description: First private subnet
     Value: !Ref PrivateSubnet1
     Export:
-      Name: my-network-private-subnet-1-id
+      Name: my-network-private-subnet-1-id-v2
 
   PrivateSubnet2Id:
     Description: Second private subnet
     Value: !Ref PrivateSubnet2
     Export:
-      Name: my-network-private-subnet-2-id
-
-  LoadBalancerSG:
-    Description: Security group for ALB
-    Value: !Ref LoadBalancerSecurityGroup
-    Export:
-      Name: my-network-lb-sg
+      Name: my-network-private-subnet-2-id-v2
 
   FrontendSG:
     Description: Security group for frontend
     Value: !Ref FrontendSecurityGroup
     Export:
-      Name: my-network-frontend-sg
+      Name: my-network-frontend-sg-v2
 
   BackendSG:
     Description: Security group for backend
     Value: !Ref BackendSecurityGroup
     Export:
-      Name: my-network-backend-sg
+      Name: my-network-backend-sg-v2
 
   DatabaseSG:
     Description: Security group for database
     Value: !Ref DatabaseSecurityGroup
     Export:
-      Name: my-network-database-sg
-
-  PrivateRouteTableId:
-    Description: Route table for private subnets
-    Value: !Ref PrivateRouteTable
-    Export:
-      Name: my-network-private-route-table-id
-
-  VPCEndpointSG:
-    Description: VPCEndpointSG
-    Value: !Ref VPCEndpointSG
-    Export:
-      Name: my-vpc-endpoint-sg
+      Name: my-network-database-sg-v2

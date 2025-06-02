@@ -29,7 +29,7 @@ Resources:
       AllocatedStorage: 20
       DBName: !Ref PostgresDbName
       VPCSecurityGroups:
-        - !ImportValue my-network-database-sg
+        - !ImportValue my-network-database-sg-v2
       DBSubnetGroupName: !Ref DBSubnetGroup
       PubliclyAccessible: false
       Port: !Ref PostgresPort
@@ -39,12 +39,12 @@ Resources:
     Properties:
       DBSubnetGroupDescription: Subnet group for RDS
       SubnetIds:
-        - !ImportValue my-network-private-subnet-1-id
-        - !ImportValue my-network-private-subnet-2-id
+        - !ImportValue my-network-private-subnet-1-id-v2
+        - !ImportValue my-network-private-subnet-2-id-v2
 
 Outputs:
   DatabaseHost:
     Description: The endpoint address of the RDS instance
     Value: !GetAtt PostgresDB.Endpoint.Address
     Export:
-      Name: my-db-host
+      Name: my-db-host-v2

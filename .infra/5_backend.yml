@@ -41,7 +41,7 @@ Resources:
             - Name: FASTAPI_HOST
               Value: !Ref FastApiHost
             - Name: POSTGRES_HOST
-              Value: !ImportValue my-db-host
+              Value: !ImportValue my-db-host-v2
             - Name: POSTGRES_PORT
               Value: !Ref PostgresPort
             - Name: POSTGRES_DB_NAME
@@ -54,7 +54,7 @@ Resources:
   BackendService:
     Type: AWS::ECS::Service
     Properties:
-      Cluster: !ImportValue my-ecs-cluster
+      Cluster: !ImportValue my-ecs-cluster-v2
       DesiredCount: 1
       LaunchType: FARGATE
       TaskDefinition: !Ref BackendTaskDefinition
@@ -62,11 +62,11 @@ Resources:
         AwsvpcConfiguration:
           AssignPublicIp: DISABLED
           Subnets:
-            - !ImportValue my-network-private-subnet-1-id
-            - !ImportValue my-network-private-subnet-2-id
+            - !ImportValue my-network-private-subnet-1-id-v2
+            - !ImportValue my-network-private-subnet-2-id-v2
           SecurityGroups:
-            - !ImportValue my-network-backend-sg
+            - !ImportValue my-network-backend-sg-v2
       LoadBalancers:
         - ContainerName: backend
           ContainerPort: 8000
-          TargetGroupArn: !ImportValue my-network-backend-tg
+          TargetGroupArn: !ImportValue my-network-backend-tg-v2

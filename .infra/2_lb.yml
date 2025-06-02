@@ -107,28 +107,16 @@ Outputs:
     Description: Target group for frontend
     Value: !Ref FrontendTargetGroup
     Export:
-      Name: my-network-frontend-tg
+      Name: my-network-frontend-tg-v2
 
   BackendTG:
     Description: Target group for backend
     Value: !Ref BackendTargetGroup
     Export:
-      Name: my-network-backend-tg
+      Name: my-network-backend-tg-v2
 
   LoadBalancerDNS:
     Description: DNS name of ALB
     Value: !GetAtt ApplicationLoadBalancer.DNSName
     Export:
-      Name: my-network-lb-dns
-
-  ALBArn:
-    Description: ARN of the application load balancer
-    Value: !Ref ApplicationLoadBalancer
-    Export:
-      Name: my-network-alb-arn
-
-  ALBListenerArn:
-    Description: ARN of the HTTP listener
-    Value: !Ref ALBListener
-    Export:
-      Name: my-network-alb-listener-arn
+      Name: my-network-lb-dns-v2

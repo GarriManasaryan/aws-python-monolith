@@ -19,13 +19,13 @@ Resources:
             - ContainerPort: 3000
           Environment:
             - Name: NEXT_PUBLIC_BASE_URL
-              # Value: !ImportValue my-network-lb-dns
+              # Value: !ImportValue my-network-lb-dns-v2
               Value: http://apploadbalancer-390334155.us-east-1.elb.amazonaws.com
 
   FrontendService:
     Type: AWS::ECS::Service
     Properties:
-      Cluster: !ImportValue my-ecs-cluster
+      Cluster: !ImportValue my-ecs-cluster-v2
       DesiredCount: 1
       LaunchType: FARGATE
       TaskDefinition: !Ref FrontendTaskDefinition
@@ -33,12 +33,12 @@ Resources:
         AwsvpcConfiguration:
           AssignPublicIp: DISABLED
           Subnets:
-            - !ImportValue my-network-private-subnet-1-id
-            - !ImportValue my-network-private-subnet-2-id
+            - !ImportValue my-network-private-subnet-1-id-v2
+            - !ImportValue my-network-private-subnet-2-id-v2
           SecurityGroups:
-            - !ImportValue my-network-frontend-sg
+            - !ImportValue my-network-frontend-sg-v2
       LoadBalancers:
         - ContainerName: frontend
           ContainerPort: 3000
-          TargetGroupArn: !ImportValue my-network-frontend-tg
+          TargetGroupArn: !ImportValue my-network-frontend-tg-v2
 

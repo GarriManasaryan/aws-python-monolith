@@ -13,4 +13,4 @@ Outputs:
     Description: ECSCluster
     Value: !Ref ECSCluster
     Export:
-      Name: my-ecs-cluster
+      Name: my-ecs-cluster-v2
