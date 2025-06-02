@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: Deploy backend, and frontend using resources from network stack
+Description: Deploy backend
 
 Parameters:
   FastApiPort:
