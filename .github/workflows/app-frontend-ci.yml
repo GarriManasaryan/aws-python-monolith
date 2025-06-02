@@ -4,11 +4,12 @@ on:
   push:
     branches:
       - main
-    # paths:
-    #   - 'frontend/**'
+    paths:
+      - 'frontend/**'
   workflow_run:
     workflows: ["Network/VPC Deployment"]
     types: [completed]
+  workflow_dispatch: {}
 
 permissions:
   contents: read
@@ -22,6 +23,9 @@ jobs:
   frontend-build-and-publish:
     name: Frontend Build and Publish
     runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'push' ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
 
     steps:
       - name: Checkout
@@ -40,7 +44,6 @@ jobs:
 
       - name: Build, tag, and push frontend image to Amazon ECR
         id: build-image
-        working-directory: ..
         run: |
           docker build -t $ECR_REPOSITORY:latest -f .docker/Dockerfile.frontend ..
           docker push --all-tags $ECR_REPOSITORY:latest
@@ -51,7 +54,7 @@ jobs:
     environment: production
     needs:
       - frontend-build-and-publish
-      
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
