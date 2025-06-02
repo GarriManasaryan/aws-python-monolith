@@ -21,7 +21,7 @@ Resources:
   FrontendTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
-      Name: FrontendTG
+      Name: FrontendTGV2
       Protocol: HTTP
       Port: 3000
       VpcId: !ImportValue my-network-vpc-v2
@@ -32,12 +32,12 @@ Resources:
         HttpCode: 200
       Tags:
         - Key: Name
-          Value: FrontendTG
+          Value: FrontendTGV2
 
   BackendTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
-      Name: BackendTG
+      Name: BackendTGV2
       Protocol: HTTP
       Port: 8000
       VpcId: !ImportValue my-network-vpc-v2
@@ -48,7 +48,7 @@ Resources:
         HttpCode: 200-399
       Tags:
         - Key: Name
-          Value: BackendTG
+          Value: BackendTGV2
 
   ALBListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
@@ -103,13 +103,13 @@ Resources:
 
 Outputs:
 
-  FrontendTG:
+  FrontendTGV2:
     Description: Target group for frontend
     Value: !Ref FrontendTargetGroup
     Export:
       Name: my-network-frontend-tg-v2
 
-  BackendTG:
+  BackendTGV2:
     Description: Target group for backend
     Value: !Ref BackendTargetGroup
     Export:
