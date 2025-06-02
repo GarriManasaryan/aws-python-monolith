@@ -87,24 +87,6 @@ Resources:
         - Type: forward
           TargetGroupArn: !Ref BackendTargetGroup
 
-  VPCEndpointSG:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: Allow traffic to AWS services via VPC endpoints
-      VpcId: !ImportValue VPC
-      SecurityGroupIngress:
-        - IpProtocol: -1
-          FromPort: -1
-          ToPort: -1
-          SourceSecurityGroupId: !ImportValue BackendSecurityGroup
-        - IpProtocol: -1
-          FromPort: -1
-          ToPort: -1
-          SourceSecurityGroupId: !ImportValue FrontendSecurityGroup
-      Tags:
-        - Key: Name
-          Value: VPC-Endpoint-SG
-
   CloudWatchLogsEndpoint:
     Type: AWS::EC2::VPCEndpoint
     Properties:
