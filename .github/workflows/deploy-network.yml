@@ -36,7 +36,7 @@ jobs:
           template: .infra/1_network.yml
           no-fail-on-empty-changeset: "1"
 
-      - name: Deploy network stack
+      - name: Deploy LB
         uses: aws-actions/aws-cloudformation-github-deploy@v1
         with:
           name: my-lb-stack-v2

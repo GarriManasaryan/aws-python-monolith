@@ -10,10 +10,10 @@ Resources:
       Scheme: internet-facing
       Type: application
       Subnets:
-        - !ImportValue PublicSubnet1
-        - !ImportValue PublicSubnet2
+        - !ImportValue my-network-public-subnet-1-id-v2
+        - !ImportValue my-network-public-subnet-2-id-v2
       SecurityGroups:
-        - !ImportValue LoadBalancerSecurityGroup
+        - !ImportValue my-network-lb-sg-v2
       Tags:
         - Key: Name
           Value: AppLoadBalancer
@@ -24,7 +24,7 @@ Resources:
       Name: FrontendTG
       Protocol: HTTP
       Port: 3000
-      VpcId: !ImportValue VPC
+      VpcId: !ImportValue my-network-vpc-v2
       TargetType: ip
       HealthCheckPath: /
       HealthCheckProtocol: HTTP
@@ -40,7 +40,7 @@ Resources:
       Name: BackendTG
       Protocol: HTTP
       Port: 8000
-      VpcId: !ImportValue VPC
+      VpcId: !ImportValue my-network-vpc-v2
       TargetType: ip
       HealthCheckPath: /docs
       HealthCheckProtocol: HTTP
@@ -91,14 +91,14 @@ Resources:
     Type: AWS::EC2::VPCEndpoint
     Properties:
       ServiceName: !Sub com.amazonaws.${AWS::Region}.logs
-      VpcId: !ImportValue VPC
+      VpcId: !ImportValue my-network-vpc-v2
       VpcEndpointType: Interface
       SubnetIds:
-        - !ImportValue PrivateSubnet1
-        - !ImportValue PrivateSubnet2
+        - !ImportValue my-network-private-subnet-1-id-v2
+        - !ImportValue my-network-private-subnet-2-id-v2
       PrivateDnsEnabled: true
       SecurityGroupIds: 
-        - !ImportValue VPCEndpointSG
+        - !ImportValue my-network-vpc-endpoints-sg-v2
 
 
 Outputs:
