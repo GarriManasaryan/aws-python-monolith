@@ -45,7 +45,7 @@ jobs:
       - name: Build, tag, and push backend image to Amazon ECR
         id: build-image
         run: |
-          docker build -t $ECR_REPOSITORY:latest -f .docker/Dockerfile.backend ..
+          docker build -t $ECR_REPOSITORY:latest -f .docker/Dockerfile.backend .
           docker push --all-tags $ECR_REPOSITORY:latest
 
   deploy-backend:
