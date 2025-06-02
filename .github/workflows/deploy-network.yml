@@ -1,4 +1,4 @@
-name: Deploy Infra via CF
+name: Network/VPC Deployment
 
 on:
   push:
@@ -13,7 +13,7 @@ env:
 
 jobs:
   deploy-support:
-    name: Deploy Support Infra
+    name: Network/VPC Deployment
     runs-on: ubuntu-latest
     environment: production
 

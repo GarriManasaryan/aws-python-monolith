@@ -5,9 +5,10 @@ on:
     branches:
       - master
     paths:
-      - 'backend/**'
-  pull_request: { }
-  workflow_dispatch: { }
+      - '.infra/**'
+  workflow_run:
+    workflows: ["Network/VPC Deployment"]
+    types: [completed]
 
 permissions:
   contents: read
@@ -18,12 +19,9 @@ env:
   ECR_REPOSITORY: ${{ secrets.ECR_BACKEND }}
 
 jobs:
-  build-and-publish:
-    name: Build and Publish
+  backend-build-and-publish:
+    name: Backend Build and Publish
     runs-on: ubuntu-latest
-    environment: ${{ github.event_name == 'pull_request' && 'development' || 'production' }}
-    outputs:
-      be-image-tag: ${{ steps.build-image.outputs.image }}
 
     steps:
       - name: Checkout
@@ -40,42 +38,15 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'corretto'
-          java-version: '22'
-          cache: 'gradle'
-
-      - name: Build artifact
-        working-directory: backend
-        run: gradle buildFatJar koverXmlReport --no-daemon
-
-      - name: Store test results
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results
-          path: |
-            ${{ github.workspace }}/backend/build/test-results/
-
       - name: Build, tag, and push backend image to Amazon ECR
         id: build-image
-        if: ${{ github.event_name != 'pull_request' && github.ref_name == 'master'}}
-        working-directory: backend
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          IMAGE_TAG: ${{ github.sha }}
-          BUILD_NUMBER: ${{ github.run_id }}
-          VCS_REF: ${{ github.sha }}
+        working-directory: ..
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
-          docker push --all-tags $ECR_REGISTRY/$ECR_REPOSITORY
-          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+          docker build -t $ECR_REPOSITORY:latest -f .docker/Dockerfile.backend ..
+          docker push --all-tags $ECR_REPOSITORY:latest
 
   deploy-backend:
     name: Deploy Backend
-    if: ${{ github.event_name != 'pull_request' && github.ref_name == 'master'}}
     runs-on: ubuntu-latest
     environment: production
     needs:

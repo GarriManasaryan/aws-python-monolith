@@ -1,0 +1,71 @@
+name: Frontend App Pipeline
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - '.infra/**'
+  workflow_run:
+    workflows: ["Network/VPC Deployment"]
+    types: [completed]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY: ${{ secrets.ECR_FRONTEND }}
+
+jobs:
+  frontend-build-and-publish:
+    name: Frontend Build and Publish
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, tag, and push frontend image to Amazon ECR
+        id: build-image
+        working-directory: ..
+        run: |
+          docker build -t $ECR_REPOSITORY:latest -f .docker/Dockerfile.frontend ..
+          docker push --all-tags $ECR_REPOSITORY:latest
+
+  deploy-frontend:
+    name: Deploy Frontend
+    runs-on: ubuntu-latest
+    environment: production
+    needs:
+      - build-and-publish
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Deploy frontend
+        uses: aws-actions/aws-cloudformation-github-deploy@v1
+        with:
+          name: my-frontend-stack-v2
+          template: .infra/6_frontend.yml
+          no-fail-on-empty-changeset: "1"
