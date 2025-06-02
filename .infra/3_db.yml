@@ -20,7 +20,7 @@ Resources:
   PostgresDB:
     Type: AWS::RDS::DBInstance
     Properties:
-      DBInstanceIdentifier: awspython-db
+      DBInstanceIdentifier: awspython-db-v2
       Engine: postgres
       EngineVersion: 16.3
       MasterUsername: !Ref PostgresUser
