@@ -3,7 +3,7 @@ name: Frontend App Pipeline
 on:
   push:
     branches:
-      - master
+      - main
     paths:
       - '.infra/**'
   workflow_run:

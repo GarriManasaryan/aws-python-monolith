@@ -3,7 +3,7 @@ name: Network/VPC Deployment
 on:
   push:
     branches:
-      - master
+      - main
     paths:
       - '.infra/**'
   workflow_dispatch: { }
