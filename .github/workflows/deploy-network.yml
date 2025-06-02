@@ -4,8 +4,9 @@ on:
   push:
     branches:
       - main
-    paths:
-      - '.infra/**'
+    # paths:
+    #   # вот как контролировать update: только если изменения в этой папке, тогда
+    #   - '.infra/**'
   workflow_dispatch: { }
 
 env:
