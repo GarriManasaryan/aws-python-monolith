@@ -43,8 +43,8 @@ def create_app(config=None) -> FastAPI:
 app = create_app()
 
 if __name__ == "__main__":
-    port = int(os.getenv("FASTAPI_PORT", 8000))
-    host = os.getenv("FASTAPI_HOST", "0.0.0.0")
+    port = int(os.getenv("FASTAPI_PORT"))
+    host = os.getenv("FASTAPI_HOST")
     uvicorn.run("web_app:app", host=host, port=port, reload=True)
 
 

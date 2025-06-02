@@ -1,0 +1,152 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: LB
+
+Resources:
+
+  ApplicationLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: AppLoadBalancer
+      Scheme: internet-facing
+      Type: application
+      Subnets:
+        - !ImportValue PublicSubnet1
+        - !ImportValue PublicSubnet2
+      SecurityGroups:
+        - !ImportValue LoadBalancerSecurityGroup
+      Tags:
+        - Key: Name
+          Value: AppLoadBalancer
+
+  FrontendTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: FrontendTG
+      Protocol: HTTP
+      Port: 3000
+      VpcId: !ImportValue VPC
+      TargetType: ip
+      HealthCheckPath: /
+      HealthCheckProtocol: HTTP
+      Matcher:
+        HttpCode: 200
+      Tags:
+        - Key: Name
+          Value: FrontendTG
+
+  BackendTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: BackendTG
+      Protocol: HTTP
+      Port: 8000
+      VpcId: !ImportValue VPC
+      TargetType: ip
+      HealthCheckPath: /docs
+      HealthCheckProtocol: HTTP
+      Matcher:
+        HttpCode: 200-399
+      Tags:
+        - Key: Name
+          Value: BackendTG
+
+  ALBListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref ApplicationLoadBalancer
+      Port: 80
+      Protocol: HTTP
+      DefaultActions:
+        - Type: fixed-response
+          FixedResponseConfig:
+            StatusCode: 404
+            ContentType: text/plain
+            MessageBody: "Not Found"
+
+  FrontendListenerRule:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      ListenerArn: !Ref ALBListener
+      Priority: 1
+      Conditions:
+        - Field: path-pattern
+          Values: [/]
+      Actions:
+        - Type: forward
+          TargetGroupArn: !Ref FrontendTargetGroup
+
+  BackendListenerRule:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      ListenerArn: !Ref ALBListener
+      Priority: 2
+      Conditions:
+        - Field: path-pattern
+          Values: [/api/*]
+      Actions:
+        - Type: forward
+          TargetGroupArn: !Ref BackendTargetGroup
+
+  VPCEndpointSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow traffic to AWS services via VPC endpoints
+      VpcId: !ImportValue VPC
+      SecurityGroupIngress:
+        - IpProtocol: -1
+          FromPort: -1
+          ToPort: -1
+          SourceSecurityGroupId: !ImportValue BackendSecurityGroup
+        - IpProtocol: -1
+          FromPort: -1
+          ToPort: -1
+          SourceSecurityGroupId: !ImportValue FrontendSecurityGroup
+      Tags:
+        - Key: Name
+          Value: VPC-Endpoint-SG
+
+  CloudWatchLogsEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      ServiceName: !Sub com.amazonaws.${AWS::Region}.logs
+      VpcId: !ImportValue VPC
+      VpcEndpointType: Interface
+      SubnetIds:
+        - !ImportValue PrivateSubnet1
+        - !ImportValue PrivateSubnet2
+      PrivateDnsEnabled: true
+      SecurityGroupIds: 
+        - !ImportValue VPCEndpointSG
+
+
+Outputs:
+
+  FrontendTG:
+    Description: Target group for frontend
+    Value: !Ref FrontendTargetGroup
+    Export:
+      Name: my-network-frontend-tg
+
+  BackendTG:
+    Description: Target group for backend
+    Value: !Ref BackendTargetGroup
+    Export:
+      Name: my-network-backend-tg
+
+  LoadBalancerDNS:
+    Description: DNS name of ALB
+    Value: !GetAtt ApplicationLoadBalancer.DNSName
+    Export:
+      Name: my-network-lb-dns
+
+  ALBArn:
+    Description: ARN of the application load balancer
+    Value: !Ref ApplicationLoadBalancer
+    Export:
+      Name: my-network-alb-arn
+
+  ALBListenerArn:
+    Description: ARN of the HTTP listener
+    Value: !Ref ALBListener
+    Export:
+      Name: my-network-alb-listener-arn

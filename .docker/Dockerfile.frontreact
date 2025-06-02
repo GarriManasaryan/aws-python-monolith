@@ -1,0 +1,24 @@
+FROM node:20-alpine AS builder
+ENV NODE_ENV production
+# Add a work directory
+WORKDIR /app
+
+COPY frontreact/package*.json ./
+RUN npm install
+COPY frontreact .
+
+# Build the app
+RUN npm run build
+
+# Bundle static assets with nginx
+FROM nginx:alpine as production
+ENV NODE_ENV production
+
+
+# Copy built assets from builder
+COPY --from=builder /app/build /usr/share/nginx/html
+# Copy nginx configuration template
+COPY .docker/nginx.conf /etc/nginx/conf.d/default.conf.template
+
+# Use envsubst to substitute the environment variable in nginx.conf at runtime, then start Nginx and the backend
+CMD envsubst '${REACT_APP_BASE_URL}' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g "daemon off;"

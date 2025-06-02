@@ -1,0 +1,16 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: ECS
+
+Resources:
+
+  ECSCluster:
+    Type: AWS::ECS::Cluster
+
+
+Outputs:
+
+  ECSCluster:
+    Description: ECSCluster
+    Value: !Ref ECSCluster
+    Export:
+      Name: my-ecs-cluster

@@ -29,6 +29,8 @@ services:
     build:
       context: ../
       dockerfile: .docker/Dockerfile.frontend
+      args:
+        NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL}
     depends_on:
       - backend
       - database
@@ -36,6 +38,18 @@ services:
       - "3000:3000"
     env_file:
       - ./.env
+
+  # frontreact:
+  #   build:
+  #     context: ../
+  #     dockerfile: .docker/Dockerfile.frontreact
+  #   depends_on:
+  #     - backend
+  #     - database
+  #   ports:
+  #     - "3000:3000"
+  #   env_file:
+  #     - ./.env
 
 volumes:
   postgres_data:

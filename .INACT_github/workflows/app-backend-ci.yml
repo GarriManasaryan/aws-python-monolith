@@ -1,0 +1,105 @@
+name: Backend App Pipeline
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'backend/**'
+  pull_request: { }
+  workflow_dispatch: { }
+
+permissions:
+  contents: read
+  pull-requests: write
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY: ${{ secrets.ECR_BACKEND }}
+
+jobs:
+  build-and-publish:
+    name: Build and Publish
+    runs-on: ubuntu-latest
+    environment: ${{ github.event_name == 'pull_request' && 'development' || 'production' }}
+    outputs:
+      be-image-tag: ${{ steps.build-image.outputs.image }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'corretto'
+          java-version: '22'
+          cache: 'gradle'
+
+      - name: Build artifact
+        working-directory: backend
+        run: gradle buildFatJar koverXmlReport --no-daemon
+
+      - name: Store test results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: |
+            ${{ github.workspace }}/backend/build/test-results/
+
+      - name: Build, tag, and push backend image to Amazon ECR
+        id: build-image
+        if: ${{ github.event_name != 'pull_request' && github.ref_name == 'master'}}
+        working-directory: backend
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+          BUILD_NUMBER: ${{ github.run_id }}
+          VCS_REF: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
+          docker push --all-tags $ECR_REGISTRY/$ECR_REPOSITORY
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+  deploy-backend:
+    name: Deploy Backend
+    if: ${{ github.event_name != 'pull_request' && github.ref_name == 'master'}}
+    runs-on: ubuntu-latest
+    environment: production
+    needs:
+      - build-and-publish
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Deploy backend
+        uses: aws-actions/aws-cloudformation-github-deploy@v1
+        with:
+          name: my-backend-stack-v2
+          template: .infra/5_backend.yml
+          no-fail-on-empty-changeset: "1"
+          parameter-overrides: >-
+            PostgresPort=${{ secrets.POSTGRES_PORT }},
+            PostgresUser=${{ secrets.POSTGRES_USER }},
+            PostgresPassword=${{ secrets.POSTGRES_PASSWORD }},
+            PostgresDbName=${{ secrets.POSTGRES_DB_NAME }}

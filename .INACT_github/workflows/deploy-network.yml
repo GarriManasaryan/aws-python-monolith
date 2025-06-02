@@ -1,0 +1,81 @@
+name: Deploy Infra via CF
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - '.infra/**'
+  workflow_dispatch: { }
+
+env:
+  AWS_REGION: us-east-1
+
+jobs:
+  deploy-support:
+    name: Deploy Support Infra
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Deploy network stack
+        uses: aws-actions/aws-cloudformation-github-deploy@v1
+        with:
+          name: my-network-stack-v2
+          template: .infra/1_network.yml
+          no-fail-on-empty-changeset: "1"
+
+      - name: Deploy network stack
+        uses: aws-actions/aws-cloudformation-github-deploy@v1
+        with:
+          name: my-lb-stack-v2
+          template: .infra/2_lb.yml
+          no-fail-on-empty-changeset: "1"
+
+      - name: Deploy RDS via AWS CloudFormation
+        uses: aws-actions/aws-cloudformation-github-deploy@v1
+        with:
+          name: my-db-stack-v2
+          template: .infra/3_db.yml
+          no-fail-on-empty-changeset: "1"
+          parameter-overrides: >-
+            PostgresPort=${{ secrets.POSTGRES_PORT }},
+            PostgresUser=${{ secrets.POSTGRES_USER }},
+            PostgresPassword=${{ secrets.POSTGRES_PASSWORD }},
+            PostgresDbName=${{ secrets.POSTGRES_DB_NAME }}
+
+      - name: Deploy ECS cluster
+        uses: aws-actions/aws-cloudformation-github-deploy@v1
+        with:
+          name: my-ecs-cluster-stack-v2
+          template: .infra/4_ecs_start.yml
+          no-fail-on-empty-changeset: "1"
+
+      # - name: Deploy backend
+      #   uses: aws-actions/aws-cloudformation-github-deploy@v1
+      #   with:
+      #     name: my-backend-stack-v2
+      #     template: .infra/5_backend.yml
+      #     no-fail-on-empty-changeset: "1"
+      #     parameter-overrides: >-
+      #       PostgresPort=${{ secrets.POSTGRES_PORT }},
+      #       PostgresUser=${{ secrets.POSTGRES_USER }},
+      #       PostgresPassword=${{ secrets.POSTGRES_PASSWORD }},
+      #       PostgresDbName=${{ secrets.POSTGRES_DB_NAME }}
+
+      # - name: Deploy frontend
+      #   uses: aws-actions/aws-cloudformation-github-deploy@v1
+      #   with:
+      #     name: my-frontend-stack-v2
+      #     template: .infra/6_frontend.yml
+      #     no-fail-on-empty-changeset: "1"

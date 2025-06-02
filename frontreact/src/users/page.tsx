@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import {UserBackofficeModel} from "@/client-models/users/UserBackofficeModel";
-import apiClient from "@/lib/axios";
+import { axiosConf } from '../axiosConf';
+import { UserBackofficeModel } from '../client-models/users/UserBackofficeModel';
 
 export default function UsersPage() {
     const [users, setUsers] = useState<UserBackofficeModel[]>([]);
@@ -10,7 +10,7 @@ export default function UsersPage() {
     const [loading, setLoading] = useState(false);
 
     const fetchUsers = () => {
-        apiClient.get("/users").then((response) => {
+        axiosConf.get("/users").then((response) => {
             setUsers(response.data);
         })
     };
@@ -23,12 +23,12 @@ export default function UsersPage() {
         if (!name.trim()) return;
         setLoading(true);
         try {
-            apiClient.post("/users", {name: name})
-            .then(()=>{
-                setName('');
-            })
+            axiosConf.post("/users", {name: name})
             .then(()=>{
                 fetchUsers();
+            })
+            .then(()=>{
+                setName('');
             })
             ;
         } catch (error) {

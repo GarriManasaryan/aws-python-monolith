@@ -1,0 +1,44 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Deploy backend, and frontend using resources from network stack
+
+Resources:
+
+  FrontendTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: frontend-task
+      Cpu: 256
+      Memory: 512
+      NetworkMode: awsvpc
+      RequiresCompatibilities: [FARGATE]
+      ExecutionRoleArn: arn:aws:iam::863518442971:role/ecsTaskExecutionRole
+      ContainerDefinitions:
+        - Name: frontend
+          Image: 863518442971.dkr.ecr.us-east-1.amazonaws.com/awspython-frontend
+          PortMappings:
+            - ContainerPort: 3000
+          Environment:
+            - Name: NEXT_PUBLIC_BASE_URL
+              # Value: !ImportValue my-network-lb-dns
+              Value: http://apploadbalancer-390334155.us-east-1.elb.amazonaws.com
+
+  FrontendService:
+    Type: AWS::ECS::Service
+    Properties:
+      Cluster: !ImportValue my-ecs-cluster
+      DesiredCount: 1
+      LaunchType: FARGATE
+      TaskDefinition: !Ref FrontendTaskDefinition
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: DISABLED
+          Subnets:
+            - !ImportValue my-network-private-subnet-1-id
+            - !ImportValue my-network-private-subnet-2-id
+          SecurityGroups:
+            - !ImportValue my-network-frontend-sg
+      LoadBalancers:
+        - ContainerName: frontend
+          ContainerPort: 3000
+          TargetGroupArn: !ImportValue my-network-frontend-tg
+

@@ -1,5 +1,5 @@
 from contextvars import ContextVar
-from os import getenv
+import os
 from typing import Optional
 
 import psycopg2.extras
@@ -14,11 +14,11 @@ load_dotenv()
 connection_pool = SimpleConnectionPool(
     2,
     12,
-    user=getenv("POSTGRES_USER"),
-    password=getenv("POSTGRES_PASSWORD"),
-    host=getenv("POSTGRES_HOST"),
-    port=getenv("POSTGRES_PORT"),
-    database=getenv("POSTGRES_DB_NAME"),
+    user=os.getenv("POSTGRES_USER"),
+    password=os.getenv("POSTGRES_PASSWORD"),
+    host=os.getenv("POSTGRES_HOST"),
+    port=os.getenv("POSTGRES_PORT"),
+    database=os.getenv("POSTGRES_DB_NAME"),
 )
 
 DbConnector = cursor

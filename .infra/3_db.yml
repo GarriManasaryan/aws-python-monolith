@@ -1,0 +1,50 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Deploy RDS, backend, and frontend using resources from network stack
+
+Parameters:
+  # Environment variables
+  PostgresPort:
+    Type: String
+    NoEcho: true
+  PostgresUser:
+    Type: String
+    NoEcho: true
+  PostgresPassword:
+    Type: String
+    NoEcho: true  # Recommended for passwords
+  PostgresDbName:
+    Type: String
+    NoEcho: true
+
+Resources:
+  PostgresDB:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBInstanceIdentifier: awspython-db
+      Engine: postgres
+      EngineVersion: 16.3
+      MasterUsername: !Ref PostgresUser
+      MasterUserPassword: !Ref PostgresPassword
+      DBInstanceClass: db.t3.micro
+      AllocatedStorage: 20
+      DBName: !Ref PostgresDbName
+      VPCSecurityGroups:
+        - !ImportValue my-network-database-sg
+      DBSubnetGroupName: !Ref DBSubnetGroup
+      PubliclyAccessible: false
+      Port: !Ref PostgresPort
+
+  DBSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: Subnet group for RDS
+      SubnetIds:
+        - !ImportValue my-network-private-subnet-1-id
+        - !ImportValue my-network-private-subnet-2-id
+
+Outputs:
+  DatabaseHost:
+    Description: The endpoint address of the RDS instance
+    Value: !GetAtt PostgresDB.Endpoint.Address
+    Export:
+      Name: my-db-host

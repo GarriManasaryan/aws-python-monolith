@@ -13,11 +13,17 @@ load_dotenv()
 config = context.config
 
 # Override from env
-DATABASE_URL = os.getenv("DATABASE_URL")
-if not DATABASE_URL:
-    raise Exception("DATABASE_URL env var is not set")
+user = os.getenv("POSTGRES_USER")
+password = os.getenv("POSTGRES_PASSWORD")
+host = os.getenv("POSTGRES_HOST")
+port = os.getenv("POSTGRES_PORT")
+dbname = os.getenv("POSTGRES_DB_NAME")
 
-config.set_main_option("sqlalchemy.url", DATABASE_URL)
+DatabaseUrl = f"postgresql+psycopg2://{user}:{password}@{host}:{port}/{dbname}"
+if not DatabaseUrl:
+    raise Exception("DatabaseUrl env var is not set")
+
+config.set_main_option("sqlalchemy.url", DatabaseUrl)
 
 # # Interpret the config file for Python logging.
 # # This line sets up loggers basically.
