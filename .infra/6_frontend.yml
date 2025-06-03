@@ -20,7 +20,7 @@ Resources:
           Environment:
             - Name: NEXT_PUBLIC_BASE_URL
               # Value: !ImportValue my-network-lb-dns-v2
-              Value: http://apploadbalancer-390334155.us-east-1.elb.amazonaws.com
+              Value: http://apploadbalancer-1804376691.us-east-1.elb.amazonaws.com
 
   FrontendService:
     Type: AWS::ECS::Service

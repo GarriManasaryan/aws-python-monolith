@@ -4,8 +4,9 @@ on:
   push:
     branches:
       - main
-    # paths:
-    #   - 'frontend/**'
+    paths:
+      - 'frontend/**'
+      - '.infra/**'
   workflow_run:
     workflows: ["Network/VPC Deployment"]
     types: [completed]
