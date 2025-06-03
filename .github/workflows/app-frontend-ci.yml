@@ -71,6 +71,6 @@ jobs:
       - name: Deploy frontend
         uses: aws-actions/aws-cloudformation-github-deploy@v1
         with:
-          name: my-frontend-stack-v2
+          name: my-frontend-stack-v3
           template: .infra/6_frontend.yml
           no-fail-on-empty-changeset: "1"
