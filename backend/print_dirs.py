@@ -10,3 +10,4 @@ def print_tree(start_path='.', indent=''):
             print_tree(full_path, indent + '  ')
 
 print_tree()
+
