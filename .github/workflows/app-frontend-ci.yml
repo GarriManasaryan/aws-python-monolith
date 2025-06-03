@@ -48,6 +48,7 @@ jobs:
           docker build -t $ECR_REPOSITORY:latest -f .docker/Dockerfile.frontend .
           docker push $ECR_REPOSITORY:latest
 
+
   deploy-frontend:
     name: Deploy Frontend
     runs-on: ubuntu-latest
