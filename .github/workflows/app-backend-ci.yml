@@ -74,7 +74,6 @@ jobs:
           template: .infra/5_backend.yml
           no-fail-on-empty-changeset: "1"
           parameter-overrides: >-
-            PostgresPort=${{ secrets.POSTGRES_PORT }},
             PostgresUser=${{ secrets.POSTGRES_USER }},
             PostgresPassword=${{ secrets.POSTGRES_PASSWORD }},
             PostgresDbName=${{ secrets.POSTGRES_DB_NAME }}

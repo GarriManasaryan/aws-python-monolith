@@ -12,6 +12,8 @@ Parameters:
     NoEcho: true
   PostgresPort:
     Type: String
+    Default: 5432
+    NoEcho: true
   PostgresDbName:
     Type: String
   PostgresUser:
