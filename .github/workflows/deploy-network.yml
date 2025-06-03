@@ -61,22 +61,3 @@ jobs:
           name: my-ecs-cluster-v2-stack-v2
           template: .infra/4_ecs_start.yml
           no-fail-on-empty-changeset: "1"
-
-      # - name: Deploy backend
-      #   uses: aws-actions/aws-cloudformation-github-deploy@v1
-      #   with:
-      #     name: my-backend-stack-v2
-      #     template: .infra/5_backend.yml
-      #     no-fail-on-empty-changeset: "1"
-      #     parameter-overrides: >-
-      #       PostgresPort=${{ secrets.POSTGRES_PORT }},
-      #       PostgresUser=${{ secrets.POSTGRES_USER }},
-      #       PostgresPassword=${{ secrets.POSTGRES_PASSWORD }},
-      #       PostgresDbName=${{ secrets.POSTGRES_DB_NAME }}
-
-      # - name: Deploy frontend
-      #   uses: aws-actions/aws-cloudformation-github-deploy@v1
-      #   with:
-      #     name: my-frontend-stack-v2
-      #     template: .infra/6_frontend.yml
-      #     no-fail-on-empty-changeset: "1"
