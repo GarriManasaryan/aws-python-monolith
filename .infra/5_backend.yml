@@ -21,6 +21,12 @@ Parameters:
 
 Resources:
 
+  BackendLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: /ecs/backend-service
+      RetentionInDays: 7
+
   BackendTaskDefinition:
     Type: AWS::ECS::TaskDefinition
     Properties:
@@ -50,6 +56,12 @@ Resources:
               Value: !Ref PostgresUser
             - Name: POSTGRES_PASSWORD
               Value: !Ref PostgresPassword
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: /ecs/backend-service
+              awslogs-region: us-east-1
+              awslogs-stream-prefix: backend
 
   BackendService:
     Type: AWS::ECS::Service
@@ -70,3 +82,9 @@ Resources:
         - ContainerName: backend
           ContainerPort: 8000
           TargetGroupArn: !ImportValue my-network-backend-tg-v2
+
+# NOTE:
+# Ensure the IAM Role ecsTaskExecutionRole includes:
+#   logs:CreateLogStream
+#   logs:PutLogEvents
+# for the log group /ecs/backend-service
